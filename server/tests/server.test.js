@@ -12,7 +12,9 @@ const todos = [
     },
     {
         _id: new ObjectID(),
-        text: 'Second test todo'
+        text: 'Second test todo',
+        completed: true,
+        completedAt: 123
     }
 ];
 
@@ -33,7 +35,7 @@ describe('POST /todos', () => {
             .expect((res) => {
                 expect(res.body.text).toBe(text)
             })
-            .end((err,res) => {
+            .end((err) => {
                 if(err){
                     return done(err);
                 }
@@ -54,9 +56,7 @@ describe('POST /todos', () => {
             .send({})
             .expect(400)
             .end((err) => {
-                if(err){
-                    return done(err);
-                }
+                if(err) return done(err);
                 Todo.find().then(
                     (todos) => {
                         expect(todos.length).toBe(2);
@@ -105,6 +105,40 @@ describe('GET /todos/:id', () => {
     });
 });
 
+describe('PATCH /todos/:id',() => {
+    it('should update the todo',(done) => {
+        let id = todos[0]._id.toHexString();
+        let data = {
+            text: "New text",
+            completed: true
+        }
+
+        request(app)
+        .patch(`/todos/${id}`)
+        .send(data)
+        .expect(200)
+        .expect((res) => {
+            expect(res.body.todo.text).toBe(data.text);
+            expect(res.body.todo.completed).toBe(true);
+            expect(typeof res.body.todo.completedAt).toBe('number');
+        })
+        .end(done);
+    });
+
+    it('should clear completedAt when todo is not completed',(done) => {
+        let id = todos[1]._id.toHexString();
+        
+        request(app)
+        .patch(`/todos/${id}`)
+        .send({completed: false})
+        .expect(200)
+        .expect((res) => {
+            expect(res.body.todo.completedAt).toBe(null);
+        })
+        .end(done);
+    })
+});
+
 describe('DELETE /todos/:id', () => {
     it('should remove a todo', (done) => {
         var hexID = todos[1]._id.toHexString();
@@ -140,4 +174,5 @@ describe('DELETE /todos/:id', () => {
         .expect(404)
         .end(done);
     });
-})
+});
+
