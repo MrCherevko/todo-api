@@ -45,6 +45,9 @@ describe('POST /todos', () => {
                         expect(todos.length).toBe(1);
                         expect(todos[0].text).toBe(text);
                         done();
+                    },
+                    (error) => {
+                        done(error);
                     }
                 ).catch((error) => done(error));
             });
