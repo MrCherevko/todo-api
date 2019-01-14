@@ -79,7 +79,22 @@ app.patch('/todos/:id', (req,res) => {
         res.send({todo});
     }).catch((e) => res.status(400).send());
 
-})
+});
+
+app.post('/users', (req, res) => {
+    let body = _.pick(req.body,['email','password']);
+    let user = new User(body);
+
+    user.save().then(
+        (user) => { 
+            return user.generateAuthToken();
+        }
+    ).then(
+        (token) => {
+            res.header('x-auth', token).send(user);
+        }
+    ).catch((error) => res.status(400).send({error}));
+});
 
 app.listen(port, () => {
     console.log(`Started on port ${port}`);

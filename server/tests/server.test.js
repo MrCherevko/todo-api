@@ -169,7 +169,7 @@ describe('DELETE /todos/:id', () => {
         .delete(`/todos/${new ObjectID().toHexString()}`)
         .expect(404)
         .end(done);
-    })
+    });
 
     it('should return 404 if object id is invalid', (done) => {
         request(app)
