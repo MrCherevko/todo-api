@@ -52,7 +52,7 @@ UserSchema.methods.generateAuthToken = function () {
 
     return user.save().then(() => {
         return token;
-    }).catch((error) => {console.log(error)});
+    });
 };
 
 UserSchema.statics.findByToken = function (token) {
