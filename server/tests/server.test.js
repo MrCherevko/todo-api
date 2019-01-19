@@ -242,8 +242,8 @@ describe('POST /users/login', ()=> {
         request(app)
         .post('/users/login')
         .send({
-            email: users[0].email,
-            password: users[0].password
+            email: users[1].email,
+            password: users[1].password
         })
         .expect(200)
         .expect((res) => {
@@ -252,9 +252,10 @@ describe('POST /users/login', ()=> {
         .end((err, res) => {
             if(err) return done(err);
 
-            User.findById(users[0]._id).then((user) => {
+            User.findById(users[1]._id).then((user) => {
                 expect(user.tokens[0]).toMatchObject({
-                    access: 'auth'
+                    access: 'auth',
+                    token: res.headers['x-auth']
                 });
                 done();
             }).catch((e) => done(e));
@@ -273,5 +274,20 @@ describe('POST /users/login', ()=> {
             expect(res.headers['x-auth']).not.toBeDefined();
         })
         .end(done);
+    });
+});
+
+describe('DELETE /users/me/token', () => {
+    it('should remove auth token on logout', (done) => {
+        request(app)
+        .delete('/users/me/token')
+        .set('x-auth', users[0].tokens[0].token)
+        .expect(200)
+        .end((err, res) => {
+            User.findById(users[0]._id).then((user) => {
+                expect(user.tokens[0]).not.toBeDefined();
+            }).catch((e) => done(e));
+            done();
+        });
     });
 })
